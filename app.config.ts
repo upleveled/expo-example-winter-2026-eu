@@ -27,7 +27,10 @@ const config: ExpoConfig = {
     favicon: './assets/images/favicon.png',
   },
   plugins: [
-    ['expo-router', { origin: 'https://your-deployed-website.vercel.app' }],
+    [
+      'expo-router',
+      { origin: 'https://expo-example-winter-2026-eu.vercel.app' },
+    ],
     [
       'expo-splash-screen',
       {

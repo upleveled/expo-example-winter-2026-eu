@@ -72,11 +72,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const animalImageContext = require.context(
-  '../../assets/images/animals',
-  false,
-  /\.avif$/,
-);
+// const animalImageContext = require.context(
+//   '../../assets/images/animals',
+//   false,
+//   /\.avif$/,
+// );
 
 export default function AnimalScreen() {
   const { animalId } = useLocalSearchParams();

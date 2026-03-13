@@ -8,7 +8,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts } from '../../constants/theme';
 import type { Animal } from '../../migrations/00000-createTableAnimals';
 import type { AnimalsResponseBodyGet } from '../api/animals/index+api';
@@ -72,7 +71,8 @@ export default function SearchScreen() {
       return (
         animal.firstName.toLowerCase().includes(lowerSearch) ||
         animal.type.toLowerCase().includes(lowerSearch) ||
-        animal.accessory.toLowerCase().includes(lowerSearch)
+        (animal.accessory !== null &&
+          animal.accessory.toLowerCase().includes(lowerSearch))
       );
     });
   }, [animals, search]);
@@ -94,11 +94,11 @@ export default function SearchScreen() {
       getAnimals().catch((error) => {
         console.error(error);
       });
-    }, [router]),
+    }, []),
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.content}>
         <TextInput
           style={styles.input}
@@ -125,6 +125,6 @@ export default function SearchScreen() {
           )}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
