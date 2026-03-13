@@ -43,3 +43,5 @@ app-example
 /android
 
 .eslintcache
+.env
+!.env.example

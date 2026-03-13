@@ -23,11 +23,11 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
   },
   web: {
-    output: 'static',
+    output: 'server',
     favicon: './assets/images/favicon.png',
   },
   plugins: [
-    'expo-router',
+    ['expo-router', { origin: 'https://your-deployed-website.vercel.app' }],
     [
       'expo-splash-screen',
       {
