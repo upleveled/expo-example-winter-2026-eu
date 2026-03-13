@@ -21,6 +21,7 @@ const config: ExpoConfig = {
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
+    package: 'com.upleveled.expo_example_winter_2026_eu',
   },
   web: {
     output: 'server',
