@@ -70,9 +70,19 @@ export default function AnimalItem(props: Props) {
       <Pressable
         style={styles.deleteButton}
         onPress={async () => {
-          await fetch(`/api/animals/${props.animal.id}`, {
+          const response = await fetch(`/api/animals/${props.animal.id}`, {
             method: 'DELETE',
           });
+
+          if (response.status === 401) {
+            router.replace(`/login?returnTo=/animals/${props.animal.id}`);
+            return;
+          }
+
+          if (!response.ok) {
+            return;
+          }
+
           props.onDelete(props.animal.id);
         }}
       >

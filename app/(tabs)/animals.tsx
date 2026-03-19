@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -40,6 +40,11 @@ export default function AnimalsScreen() {
     useCallback(() => {
       async function getAnimals() {
         const response = await fetch('/api/animals');
+
+        if (response.status === 401) {
+          router.replace('/login?returnTo=/(tabs)/animals');
+          return;
+        }
 
         if (!response.ok) {
           setAnimals([]);

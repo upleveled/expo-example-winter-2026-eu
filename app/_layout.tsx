@@ -33,6 +33,7 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} redirect />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
         name="animals/new"
@@ -50,6 +51,26 @@ export default function RootLayout() {
           presentation: 'modal',
           animation: 'slide_from_bottom',
           title: 'Animal',
+          headerTintColor: colors.text,
+          headerStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <Stack.Screen
+        name="notes/newNote"
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          title: 'New Note',
+          headerTintColor: colors.text,
+          headerStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <Stack.Screen
+        name="notes/[noteId]"
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          title: 'Note',
           headerTintColor: colors.text,
           headerStyle: { backgroundColor: colors.background },
         }}
