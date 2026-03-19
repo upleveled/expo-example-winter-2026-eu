@@ -43,5 +43,12 @@ export async function GET(
 
   const note = await getNote(sessionToken, parsedNoteId);
 
+  if (!note) {
+    return ExpoApiResponse.json(
+      { error: `Access denied to note with id ${noteId}` },
+      { status: 403 },
+    );
+  }
+
   return ExpoApiResponse.json({ note });
 }
