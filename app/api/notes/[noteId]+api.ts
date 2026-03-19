@@ -34,21 +34,14 @@ export async function GET(
     );
   }
 
-  if (!(await selectNoteExists(parsedNoteId))) {
-    return ExpoApiResponse.json(
-      { error: `No note with id ${noteId} found` },
-      { status: 404 },
-    );
-  }
-
-  const note = await getNote(sessionToken, parsedNoteId);
-
-  if (!note) {
+  if (!(await selectNoteExists(sessionToken, parsedNoteId))) {
     return ExpoApiResponse.json(
       { error: `Access denied to note with id ${noteId}` },
       { status: 403 },
     );
   }
+
+  const note = await getNote(sessionToken, parsedNoteId);
 
   return ExpoApiResponse.json({ note });
 }
