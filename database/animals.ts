@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import type { Animal } from '../migrations/00000-createTableAnimals';
+import type { Session } from '../migrations/00003-createTableSessions';
 import { sql } from './connect';
 
 // const animals = [
@@ -50,6 +51,136 @@ import { sql } from './connect';
 
 // We use the cache() function below to
 // run the function only 1 time per request
+
+export const getAnimals = cache(async (sessionToken: Session['token']) => {
+  const animals = await sql<Animal[]>`
+    SELECT
+      *
+    FROM
+      animals
+    WHERE
+      EXISTS (
+        SELECT
+          1
+        FROM
+          sessions
+        WHERE
+          sessions.token = ${sessionToken}
+          AND sessions.expiry_timestamp > now()
+      )
+  `;
+  return animals;
+});
+
+export const getAnimal = cache(
+  async (sessionToken: Session['token'], animalId: number) => {
+    const [animal] = await sql<Animal[]>`
+      SELECT
+        *
+      FROM
+        animals
+      WHERE
+        id = ${animalId}
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            sessions
+          WHERE
+            sessions.token = ${sessionToken}
+            AND sessions.expiry_timestamp > now()
+        )
+    `;
+    return animal;
+  },
+);
+
+export const createAnimal = cache(
+  async (
+    sessionToken: Session['token'],
+    newAnimal: Omit<Animal, 'id'>,
+  ) => {
+    const [animal] = await sql<Animal[]>`
+      INSERT INTO
+        animals (
+          first_name,
+          type,
+          accessory,
+          birth_date
+        )
+      SELECT
+        ${newAnimal.firstName},
+        ${newAnimal.type},
+        ${newAnimal.accessory},
+        ${newAnimal.birthDate}
+      WHERE
+        EXISTS (
+          SELECT
+            1
+          FROM
+            sessions
+          WHERE
+            sessions.token = ${sessionToken}
+            AND sessions.expiry_timestamp > now()
+        )
+      RETURNING
+        animals.*
+    `;
+    return animal;
+  },
+);
+
+export const updateAnimal = cache(
+  async (sessionToken: Session['token'], updatedAnimal: Animal) => {
+    const [animal] = await sql<Animal[]>`
+      UPDATE animals
+      SET
+        first_name = ${updatedAnimal.firstName},
+        type = ${updatedAnimal.type},
+        accessory = ${updatedAnimal.accessory},
+        birth_date = ${updatedAnimal.birthDate}
+      WHERE
+        id = ${updatedAnimal.id}
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            sessions
+          WHERE
+            sessions.token = ${sessionToken}
+            AND sessions.expiry_timestamp > now()
+        )
+      RETURNING
+        animals.*
+    `;
+    return animal;
+  },
+);
+
+export const deleteAnimal = cache(
+  async (
+    sessionToken: Session['token'],
+    animalToDelete: Pick<Animal, 'id'>,
+  ) => {
+    const [animal] = await sql<Animal[]>`
+      DELETE FROM animals
+      WHERE
+        id = ${animalToDelete.id}
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            sessions
+          WHERE
+            sessions.token = ${sessionToken}
+            AND sessions.expiry_timestamp > now()
+        )
+      RETURNING
+        animals.*
+    `;
+    return animal;
+  },
+);
 
 // "Read" in CRUD
 export const getAnimalsInsecure = cache(async () => {

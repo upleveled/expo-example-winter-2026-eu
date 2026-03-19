@@ -1,13 +1,15 @@
 import {
-  deleteAnimalInsecure,
+  deleteAnimal,
+  getAnimal,
   getAnimalInsecure,
-  updateAnimalInsecure,
+  updateAnimal,
 } from '../../../database/animals';
 import { ExpoApiResponse } from '../../../ExpoApiResponse';
 import {
   type Animal,
   animalSchema,
 } from '../../../migrations/00000-createTableAnimals';
+import { parse } from 'cookie';
 
 export type AnimalResponseBodyGet =
   | {
@@ -21,15 +23,33 @@ export async function GET(
   request: Request,
   { animalId }: { animalId: string },
 ): Promise<ExpoApiResponse<AnimalResponseBodyGet>> {
-  const animal = await getAnimalInsecure(Number(animalId));
+  const cookies = parse(request.headers.get('cookie') || '');
+  const sessionToken = cookies.sessionToken;
 
-  if (!animal) {
+  if (!sessionToken) {
     return ExpoApiResponse.json(
       {
-        error: `No animal with id ${animalId} found`,
+        error: 'Authentication required',
       },
       {
-        status: 404,
+        status: 401,
+      },
+    );
+  }
+
+  const animal = await getAnimal(sessionToken, Number(animalId));
+
+  if (!animal) {
+    const existingAnimal = await getAnimalInsecure(Number(animalId));
+
+    return ExpoApiResponse.json(
+      {
+        error: existingAnimal
+          ? 'Access denied'
+          : `No animal with id ${animalId} found`,
+      },
+      {
+        status: existingAnimal ? 403 : 404,
       },
     );
   }
@@ -49,6 +69,20 @@ export async function PUT(
   request: Request,
   { animalId }: { animalId: string },
 ): Promise<ExpoApiResponse<AnimalResponseBodyPut>> {
+  const cookies = parse(request.headers.get('cookie') || '');
+  const sessionToken = cookies.sessionToken;
+
+  if (!sessionToken) {
+    return ExpoApiResponse.json(
+      {
+        error: 'Authentication required',
+      },
+      {
+        status: 401,
+      },
+    );
+  }
+
   const requestBody = await request.json();
   const result = animalSchema.safeParse(requestBody);
 
@@ -73,7 +107,7 @@ export async function PUT(
     );
   }
 
-  const animal = await updateAnimalInsecure({
+  const animal = await updateAnimal(sessionToken, {
     id: Number(animalId),
     ...result.data.animal,
   });
@@ -84,7 +118,7 @@ export async function PUT(
         error: 'Cannot update animal',
       },
       {
-        status: 500,
+        status: 401,
       },
     );
   }
@@ -104,6 +138,20 @@ export async function DELETE(
   request: Request,
   { animalId }: { animalId: string },
 ): Promise<ExpoApiResponse<AnimalResponseBodyDelete>> {
+  const cookies = parse(request.headers.get('cookie') || '');
+  const sessionToken = cookies.sessionToken;
+
+  if (!sessionToken) {
+    return ExpoApiResponse.json(
+      {
+        error: 'Authentication required',
+      },
+      {
+        status: 401,
+      },
+    );
+  }
+
   const existingAnimal = await getAnimalInsecure(Number(animalId));
   if (!existingAnimal) {
     return ExpoApiResponse.json(
@@ -114,7 +162,7 @@ export async function DELETE(
     );
   }
 
-  const animal = await deleteAnimalInsecure({
+  const animal = await deleteAnimal(sessionToken, {
     id: Number(animalId),
   });
 
@@ -124,7 +172,7 @@ export async function DELETE(
         error: 'Cannot delete animal',
       },
       {
-        status: 500,
+        status: 401,
       },
     );
   }

@@ -47,6 +47,26 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="notes"
+        options={{
+          title: 'Notes',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'document-text' : 'document-text-outline'}
+              color={color}
+              size={22}
+            />
+          ),
+          headerRight: () => (
+            <Link href="/notes/newNote" asChild>
+              <TouchableOpacity style={styles.headerRight}>
+                <Ionicons name="add" color={colors.text} size={24} />
+              </TouchableOpacity>
+            </Link>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="search"
         options={{
           headerShown: false,
@@ -54,6 +74,19 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'search' : 'search-outline'}
+              color={color}
+              size={22}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'person' : 'person-outline'}
               color={color}
               size={22}
             />

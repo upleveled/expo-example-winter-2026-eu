@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -70,6 +70,22 @@ export default function NewAnimalScreen() {
   const [accessory, setAccessory] = useState('Bow tie');
   const [birthDate, setBirthDate] = useState('2022-01-15');
 
+  useFocusEffect(
+    useCallback(() => {
+      async function getUser() {
+        const response = await fetch('/api/user');
+
+        if (response.status === 401) {
+          router.replace('/login?returnTo=/animals/new');
+        }
+      }
+
+      getUser().catch((error) => {
+        console.error(error);
+      });
+    }, []),
+  );
+
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
@@ -128,6 +144,12 @@ export default function NewAnimalScreen() {
 
               if (!response.ok) {
                 const body: AnimalsResponseBodyPost = await response.json();
+
+                if ('error' in body && body.error === 'Authentication required') {
+                  router.replace('/login?returnTo=/animals/new');
+                  return;
+                }
+
                 Alert.alert(
                   'Error',
                   'error' in body ? body.error : 'Unknown error',
